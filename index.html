@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Quiz PRO do Luan 🔥</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #111, #1a1a1a);
+  color: white;
+  text-align: center;
+  padding: 30px;
+}
+
+.quiz-box {
+  background: #222;
+  padding: 25px;
+  border-radius: 15px;
+  width: 340px;
+  margin: auto;
+  box-shadow: 0 0 20px rgba(255,102,0,0.6);
+}
+
+button {
+  margin: 8px;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: #ff6600;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+button:hover {
+  background: #ff8533;
+}
+</style>
+
+</head>
+<body>
+
+<div class="quiz-box" id="tela">
+  <h2>Escolha o nível</h2>
+  <button onclick="iniciar('facil')">Fácil</button>
+  <button onclick="iniciar('medio')">Médio</button>
+  <button onclick="iniciar('dificil')">Difícil</button>
+</div>
+
+<audio id="somAcerto" src="https://www.soundjay.com/buttons/sounds/button-4.mp3"></audio>
+<audio id="somErro" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
+<script>
+
+// PERGUNTAS POR NÍVEL
+const banco = {
+
+facil: [
+{pergunta:"Quanto é 2+2?", respostas:["3","4","5","6"], correta:1},
+{pergunta:"Cor do céu?", respostas:["Azul","Verde","Preto","Rosa"], correta:0},
+{pergunta:"5x2?", respostas:["10","7","12","9"], correta:0},
+{pergunta:"Animal que late?", respostas:["Gato","Cachorro","Peixe","Pássaro"], correta:1},
+{pergunta:"Sol nasce onde?", respostas:["Norte","Sul","Leste","Oeste"], correta:2}
+],
+
+medio: [
+{pergunta:"Capital da França?", respostas:["Roma","Paris","Berlim","Madrid"], correta:1},
+{pergunta:"12x8?", respostas:["96","88","108","102"], correta:0},
+{pergunta:"Planeta vermelho?", respostas:["Terra","Marte","Júpiter","Saturno"], correta:1},
+{pergunta:"Raiz de 81?", respostas:["7","8","9","6"], correta:2},
+{pergunta:"Velocidade da luz?", respostas:["300 mil km/s","150 mil","1 milhão","10 mil"], correta:0}
+],
+
+dificil: [
+{pergunta:"Quem criou o JavaScript?", respostas:["Bill Gates","Brendan Eich","Elon Musk","Mark Zuckerberg"], correta:1},
+{pergunta:"Ano do descobrimento do Brasil?", respostas:["1500","1498","1600","1400"], correta:0},
+{pergunta:"Integral de x dx?", respostas:["x²/2","x³","2x","x"], correta:0},
+{pergunta:"Capital da Islândia?", respostas:["Oslo","Reykjavik","Helsinque","Copenhague"], correta:1},
+{pergunta:"Valor de π aproximado?", respostas:["2.14","3.14","4.13","3.41"], correta:1}
+]
+
+};
+
+let perguntas = [];
+let atual = 0;
+let pontos = 0;
+
+function iniciar(nivel) {
+  perguntas = banco[nivel];
+  atual = 0;
+  pontos = 0;
+  mostrarPergunta();
+}
+
+function mostrarPergunta() {
+  const p = perguntas[atual];
+
+  document.getElementById("tela").innerHTML = `
+    <h2>${p.pergunta}</h2>
+    <div id="respostas"></div>
+  `;
+
+  const respostasDiv = document.getElementById("respostas");
+
+  p.respostas.forEach((resposta, index) => {
+    const btn = document.createElement("button");
+    btn.innerText = resposta;
+    btn.onclick = () => verificar(index);
+    respostasDiv.appendChild(btn);
+  });
+}
+
+function verificar(index) {
+  if (index === perguntas[atual].correta) {
+    pontos++;
+    document.getElementById("somAcerto").play();
+  } else {
+    document.getElementById("somErro").play();
+  }
+
+  atual++;
+
+  if (atual < perguntas.length) {
+    mostrarPergunta();
+  } else {
+    finalizar();
+  }
+}
+
+function finalizar() {
+  let nome = prompt("Seu nome:");
+  let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+
+  ranking.push({ nome, pontos });
+
+  ranking.sort((a, b) => b.pontos - a.pontos);
+
+  localStorage.setItem("ranking", JSON.stringify(ranking));
+
+  document.getElementById("tela").innerHTML = `
+    <h2>Fim de jogo!</h2>
+    <p>Pontuação: ${pontos}</p>
+    <button onclick="location.reload()">Jogar novamente</button>
+    <h3>🏆 Ranking</h3>
+    <ul>
+      ${ranking.map(r => `<li>${r.nome} - ${r.pontos}</li>`).join("")}
+    </ul>
+  `;
+}
+
+</script>
+
+</body>
+</html>
